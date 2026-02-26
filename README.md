@@ -1,262 +1,330 @@
-# Intufind AI JavaScript SDK
+# @intufind/ai-sdk
 
-Official JavaScript/TypeScript SDK for [Intufind](https://intufind.com) AI Cloud Services — AI-powered semantic search, chat, and recommendations for e-commerce.
-
-[![npm version](https://img.shields.io/npm/v/@intufind/ai-sdk)](https://www.npmjs.com/package/@intufind/ai-sdk)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
+Official JavaScript/TypeScript SDK for [Intufind AI](https://intufind.com) — semantic search, AI chat, recommendations, and knowledge base management.
 
 ## Installation
 
 ```bash
 npm install @intufind/ai-sdk
-# or
-yarn add @intufind/ai-sdk
-# or
-pnpm add @intufind/ai-sdk
 ```
+
+Requires **Node.js >= 18** (uses native `fetch`). Works in modern browsers with no polyfills.
 
 ## Quick Start
 
 ```typescript
-import { IntufindClient } from '@intufind/ai-sdk';
+import { Intufind } from '@intufind/ai-sdk';
 
-const client = new IntufindClient({
-  apiKey: 'your-api-key',
-  siteUrl: 'https://your-site.com',
-});
+const client = new Intufind({ apiKey: 'if_sk_...' });
 
-// Search products semantically
-const results = await client.products().search({
-  text: 'wireless noise cancelling headphones',
-  limit: 10,
-});
+// Search products
+const { data } = await client.products.search({ text: 'blue running shoes', limit: 10 });
+console.log(data.results);
 
-for (const product of results.results) {
-  console.log(`${product.name} - $${product.price}`);
+// AI chat with streaming
+for await (const chunk of client.chat.stream({ message: 'Hi!', threadId: 'thread-1' })) {
+  if (chunk.type === 'text_delta') process.stdout.write(chunk.data);
 }
 ```
-
-## Features
-
-- **Semantic Search** — AI-powered product and content search
-- **AI Chat** — Conversational shopping assistant with streaming support
-- **Recommendations** — Trending, similar, and personalized product suggestions
-- **Content Indexing** — Index products, posts, and custom content
-- **Webhooks** — Real-time event notifications
-- **Full TypeScript Support** — Complete type definitions included
 
 ## Configuration
 
 ```typescript
-import { IntufindClient, Configuration } from '@intufind/ai-sdk';
-
-const client = new IntufindClient({
-  apiKey: 'your-api-key',
-  siteUrl: 'https://your-site.com',
-  apiEndpoint: 'https://api.intufind.com',      // Optional: custom endpoint
-  streamingEndpoint: 'https://stream.intufind.com', // Optional: for chat streaming
-  timeout: 30000, // Request timeout in ms
-  debug: false,   // Enable debug logging
+const client = new Intufind({
+  apiKey: 'if_sk_...',            // Required — secret or publishable key
+  workspaceId: 'mystore-com',    // Scope to a workspace
+  apiEndpoint: 'https://...',    // Custom API endpoint (default: https://api.intufind.com)
+  streamingEndpoint: 'https://...',
+  timeout: 30000,                // Request timeout in ms (default: 30s)
+  maxRetries: 3,                 // Retry count for transient errors (default: 3)
+  debug: false,                  // Log requests/responses
 });
-
-// Or use the Configuration class for more control
-const config = new Configuration({
-  apiKey: 'your-api-key',
-  siteUrl: 'https://your-site.com',
-});
-
-const client = new IntufindClient(config);
 ```
 
-## Usage Examples
+### Workspace Scoping
+
+```typescript
+const scoped = client.withWorkspaceId('mystore-com');
+await scoped.products.search({ text: 'shoes' });
+```
+
+### Workspace ID from URL
+
+```typescript
+import { workspaceIdFromUrl } from '@intufind/ai-sdk';
+
+workspaceIdFromUrl('https://mystore.com');       // 'mystore-com'
+workspaceIdFromUrl('my-store.myshopify.com');     // 'my-store-myshopify-com'
+```
+
+## API Key Types
+
+| Key Type | Prefix | Use |
+|----------|--------|-----|
+| **Secret** | `if_sk_` | Server-side only. Full access to all resources. |
+| **Publishable** | `if_pk_` | Safe for client-side. Read-only: search, chat, recommendations, feedback submit, prompts. |
+
+## Resources
 
 ### Products
 
 ```typescript
-// Index a product
-await client.products().upsert({
-  id: 'sku-123',
-  name: 'Wireless Headphones',
-  content: 'Premium wireless headphones with active noise cancellation...',
-  price: 299.99,
-  categories: ['electronics', 'audio'],
-  attributes: {
-    color: ['Black', 'Silver'],
-    brand: ['AudioPro'],
-  },
-});
+// Search
+const results = await client.products.search({ text: 'blue shoes', limit: 10 });
 
-// Search products
-const results = await client.products().search({
-  text: 'comfortable headphones for working from home',
-  limit: 10,
-  filters: {
-    categories: ['electronics'],
-  },
-});
+// Search with facets for building filter UI
+const faceted = await client.products.searchWithFacets(
+  { text: 'shoes' },
+  ['categories', 'brands', 'price_ranges'],
+);
+console.log(faceted.data.facets);
 
-// Delete a product
-await client.products().delete('sku-123');
+// CRUD (secret key)
+await client.products.upsert({ id: '1', name: 'Running Shoe', price: 99.99 });
+await client.products.get('1');
+await client.products.delete('1');
+
+// Bulk operations (secret key)
+await client.products.bulkUpsert([{ id: '1', name: 'A' }, { id: '2', name: 'B' }]);
+await client.products.bulkDelete(['1', '2']);
+
+// List IDs / delete by query (secret key)
+await client.products.listIds({ limit: 100 });
+await client.products.deleteByQuery([{ field: 'categories', value: 'clearance' }]);
 ```
 
-### Posts / Content
+### Posts
+
+Same interface as Products — `search`, `get`, `upsert`, `delete`, `bulkUpsert`, `bulkDelete`, `listIds`, `deleteByQuery`.
 
 ```typescript
-// Index a blog post
-await client.posts().upsert({
-  id: 'post-456',
-  title: 'Best Headphones for Remote Work',
-  content: 'Finding the perfect headphones for your home office...',
-  status: 'publish',
-  categories: ['guides', 'audio'],
-});
-
-// Search posts
-const results = await client.posts().search({
-  text: 'headphone buying guide',
-  limit: 5,
-});
+await client.posts.search({ text: 'return policy' });
+await client.posts.upsert({ id: 'p1', title: 'Return Policy', content: '...' });
 ```
 
-### AI Chat
+### Taxonomies
+
+Same interface as Products (except no search).
 
 ```typescript
-// Send a chat message
-const response = await client.chat().send({
-  message: 'I need headphones for working from home, budget around $200',
-  threadId: 'user-session-123',
+await client.taxonomies.upsert({ id: 't1', name: 'Color', slug: 'color', taxonomyName: 'category' });
+await client.taxonomies.get('t1');
+await client.taxonomies.bulkUpsert([{ id: 't1', name: 'Color', slug: 'color', taxonomyName: 'tag' }]);
+await client.taxonomies.listIds();
+```
+
+### Chat
+
+```typescript
+// Non-streaming
+const response = await client.chat.send({
+  message: 'What shoes do you recommend?',
+  threadId: 'thread-1',
 });
+console.log(response.data.message.intro);
 
-console.log(response.intro);
-
-for (const product of response.products) {
-  console.log(`- ${product.name}: $${product.price}`);
-}
-
-// Streaming chat (for real-time responses)
-const stream = await client.chat().stream({
-  message: 'Tell me more about the first option',
-  threadId: 'user-session-123',
-});
-
-for await (const chunk of stream) {
-  if (isTextDelta(chunk)) {
-    process.stdout.write(chunk.delta);
-  } else if (isProduct(chunk)) {
-    console.log('\nProduct:', chunk.product.name);
+// Streaming
+for await (const chunk of client.chat.stream({
+  message: 'Tell me about your return policy',
+  threadId: 'thread-1',
+})) {
+  switch (chunk.type) {
+    case 'text_delta':
+      process.stdout.write(chunk.data);
+      break;
+    case 'product':
+      console.log('Product:', chunk.data);
+      break;
+    case 'domain_offer':
+      console.log('Offer:', chunk.data);
+      break;
+    case 'complete':
+      console.log('\nDone');
+      break;
   }
 }
 ```
 
-### Webhooks
+#### Type Guards
 
 ```typescript
-// Register a webhook
-await client.webhooks().create({
-  url: 'https://yoursite.com/webhook',
-  events: ['product.indexed', 'chat.completed'],
+import { isTextDelta, isProduct, isPost, isDomainOffer, isComplete } from '@intufind/ai-sdk';
+
+for await (const chunk of client.chat.stream({ message: '...', threadId: '...' })) {
+  if (isTextDelta(chunk)) console.log(chunk.data);       // string
+  if (isProduct(chunk))   console.log(chunk.data.name);   // ProductDto
+  if (isPost(chunk))      console.log(chunk.data.title);  // PostDto
+}
+```
+
+#### Cancellation
+
+```typescript
+const controller = new AbortController();
+setTimeout(() => controller.abort(), 5000);
+
+for await (const chunk of client.chat.stream(
+  { message: '...', threadId: '...' },
+  { signal: controller.signal },
+)) {
+  // ...
+}
+```
+
+### Prompts
+
+```typescript
+// List prompts (publishable key safe)
+const prompts = await client.prompts.list({ limit: 20 });
+
+// Get by ID
+const prompt = await client.prompts.get('prompt-1');
+
+// Create / update (secret key)
+await client.prompts.upsert({
+  prompt: 'What size shoe do you wear?',
+  title: 'Shoe size',
+  categories: ['shoes'],
 });
 
-// List webhooks
-const webhooks = await client.webhooks().list();
+// Delete (secret key)
+await client.prompts.delete('prompt-1');
+```
 
-// Test a webhook
-const result = await client.webhooks().test('webhook-id');
+### Recommendations
+
+```typescript
+const recs = await client.recommendations.get({
+  productId: 'prod-1',
+  maxRecommendations: 5,
+});
+console.log(recs.data.recommendations);
+```
+
+### Webhooks (secret key)
+
+```typescript
+// Create
+await client.webhooks.create({
+  name: 'Inventory sync',
+  url: 'https://example.com/webhook',
+  events: ['product.upsert', 'product.delete'],
+});
+
+// List, get, update, delete
+const hooks = await client.webhooks.list({ status: 'active' });
+await client.webhooks.update('webhook-1', { status: 'inactive' });
+await client.webhooks.delete('webhook-1');
+
+// Test delivery
+const result = await client.webhooks.test('webhook-1');
+console.log(result.data.success);
+
+// Available events
+const events = await client.webhooks.events();
+```
+
+### Threads (secret key)
+
+```typescript
+const threads = await client.threads.search({
+  filters: { has_handoff: true },
+  sort_by: 'created_at',
+  sort_order: 'desc',
+});
+
+const messages = await client.threads.getMessages('thread-1');
+await client.threads.export('thread-1');
+await client.threads.endHandoff('thread-1');
+await client.threads.delete('thread-1');
+```
+
+### Feedback
+
+```typescript
+// Submit (publishable key safe)
+await client.feedback.submit({
+  threadId: 'thread-1',
+  rating: 'positive',
+  comment: 'Very helpful!',
+});
+
+// Admin operations (secret key)
+const results = await client.feedback.search({ filters: { rating: 'negative' } });
+const analytics = await client.feedback.analytics();
+const threadFeedback = await client.feedback.forThread('thread-1');
+await client.feedback.delete('feedback-1');
+```
+
+### Analytics (secret key)
+
+```typescript
+const searchStats = await client.analytics.search({ days: 30, topN: 10 });
+const chatStats = await client.analytics.chat({ days: 7 });
+const feedbackStats = await client.analytics.feedback({ dateFrom: '2026-01-01', dateTo: '2026-02-26' });
+```
+
+### API Keys (secret key)
+
+```typescript
+const keys = await client.apiKeys.list();
+const newKey = await client.apiKeys.create({ label: 'Production', keyType: 'secret' });
+console.log(newKey.data.key); // Only shown once
+
+await client.apiKeys.revoke('key-1');
+const rotated = await client.apiKeys.rotate('key-1');
 ```
 
 ## Error Handling
+
+All API errors throw typed exceptions:
 
 ```typescript
 import {
   IntufindError,
   AuthenticationError,
-  RateLimitError,
   ValidationError,
+  RateLimitError,
+  TrialExpiredError,
   NotFoundError,
 } from '@intufind/ai-sdk';
 
 try {
-  const results = await client.products().search({ text: 'headphones' });
+  await client.products.get('nonexistent');
 } catch (error) {
-  if (error instanceof AuthenticationError) {
-    // Invalid API key
-    console.error('Auth failed:', error.message);
-  } else if (error instanceof RateLimitError) {
-    // Too many requests
-    console.error('Rate limited. Retry after:', error.retryAfter);
-  } else if (error instanceof ValidationError) {
-    // Invalid request parameters
-    console.error('Validation error:', error.message);
-  } else if (error instanceof NotFoundError) {
-    // Resource not found
-    console.error('Not found:', error.message);
-  } else if (error instanceof IntufindError) {
-    // General API error
-    console.error('API error:', error.message);
+  if (error instanceof NotFoundError) {
+    console.log(error.message);    // "Resource not found"
+    console.log(error.status);     // 404
+    console.log(error.requestId);  // For debugging with support
+  }
+
+  if (error instanceof RateLimitError) {
+    // Back off and retry
+  }
+
+  if (error instanceof TrialExpiredError) {
+    console.log(error.upgradeUrl);
   }
 }
 ```
 
-## Available Services
+Transient errors (5xx, network) are automatically retried with exponential backoff. Client errors (400, 401, 404) are not retried.
 
-| Service | Access | Description |
-|---------|--------|-------------|
-| Products | `client.products()` | Product indexing and search |
-| Posts | `client.posts()` | Content/blog post management |
-| Chat | `client.chat()` | AI conversational interface |
-| Prompts | `client.prompts()` | Custom AI prompt templates |
-| Threads | `client.threads()` | Chat thread management |
-| Webhooks | `client.webhooks()` | Webhook management |
-| Tenant | `client.tenant()` | Account and subscription info |
-| Provisioning | `client.provisioning()` | License activation |
-| Config | `client.config()` | Widget/theme configuration |
+## TypeScript
 
-## Immutable Configuration
-
-The client supports immutable configuration updates:
+All request/response types are exported:
 
 ```typescript
-// Create a new client with updated settings
-const debugClient = client.withDebug(true);
-const otherSite = client.withSiteUrl('https://other-site.com');
-const otherKey = client.withApiKey('different-api-key');
+import type {
+  ProductDto,
+  ProductSearchRequest,
+  ProductSearchResponse,
+  ChatRequest,
+  StreamChunk,
+  WebhookDto,
+} from '@intufind/ai-sdk';
 ```
-
-## Requirements
-
-- Node.js 18.0.0 or later
-- Modern browsers with `fetch` support
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Watch mode
-npm run dev
-
-# Run tests
-npm test
-
-# Type check
-npm run type-check
-
-# Lint
-npm run lint
-```
-
-## Support
-
-- **Documentation**: [docs.intufind.com](https://docs.intufind.com)
-- **Email**: support@intufind.com
-- **Issues**: [GitHub Issues](https://github.com/intufind/ai-sdk-js/issues)
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
-
+MIT

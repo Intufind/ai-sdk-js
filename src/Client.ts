@@ -1,123 +1,53 @@
-import { type ConfigOptions, Configuration } from './config/Configuration';
-import { HttpClient } from './http/HttpClient';
-import { ChatService } from './services/ChatService';
-import { ConfigService } from './services/ConfigService';
-import { PostService } from './services/PostService';
-import { ProductService } from './services/ProductService';
-import { PromptService } from './services/PromptService';
-import { ProvisioningService } from './services/ProvisioningService';
-import { TenantService } from './services/TenantService';
-import { ThreadService } from './services/ThreadService';
-import { WebhookService } from './services/WebhookService';
+import { HttpClient } from './http/client';
+import type { ClientOptions } from './types/common';
+import { Analytics } from './resources/analytics';
+import { ApiKeys } from './resources/api-keys';
+import { Chat } from './resources/chat';
+import { Feedback } from './resources/feedback';
+import { Posts } from './resources/posts';
+import { Products } from './resources/products';
+import { Prompts } from './resources/prompts';
+import { Recommendations } from './resources/recommendations';
+import { Taxonomies } from './resources/taxonomies';
+import { Threads } from './resources/threads';
+import { Webhooks } from './resources/webhooks';
 
-export class IntufindClient {
-  private configuration: Configuration;
-  private httpClient: HttpClient;
-  private _chatService?: ChatService;
-  private _configService?: ConfigService;
-  private _productService?: ProductService;
-  private _postService?: PostService;
-  private _promptService?: PromptService;
-  private _provisioningService?: ProvisioningService;
-  private _webhookService?: WebhookService;
-  private _tenantService?: TenantService;
-  private _threadService?: ThreadService;
+export class Intufind {
+  private readonly http: HttpClient;
 
-  constructor(options: ConfigOptions | Configuration) {
-    this.configuration = options instanceof Configuration ? options : new Configuration(options);
-    this.httpClient = new HttpClient(this.configuration);
+  readonly analytics: Analytics;
+  readonly apiKeys: ApiKeys;
+  readonly chat: Chat;
+  readonly feedback: Feedback;
+  readonly posts: Posts;
+  readonly products: Products;
+  readonly prompts: Prompts;
+  readonly recommendations: Recommendations;
+  readonly taxonomies: Taxonomies;
+  readonly threads: Threads;
+  readonly webhooks: Webhooks;
+
+  constructor(options: ClientOptions) {
+    this.http = new HttpClient(options);
+
+    this.analytics = new Analytics(this.http);
+    this.apiKeys = new ApiKeys(this.http);
+    this.chat = new Chat(this.http);
+    this.feedback = new Feedback(this.http);
+    this.posts = new Posts(this.http);
+    this.products = new Products(this.http);
+    this.prompts = new Prompts(this.http);
+    this.recommendations = new Recommendations(this.http);
+    this.taxonomies = new Taxonomies(this.http);
+    this.threads = new Threads(this.http);
+    this.webhooks = new Webhooks(this.http);
   }
 
-  chat(): ChatService {
-    if (!this._chatService) {
-      this._chatService = new ChatService(this.httpClient);
-    }
-    return this._chatService;
-  }
-
-  config(): ConfigService {
-    if (!this._configService) {
-      this._configService = new ConfigService(this.httpClient);
-    }
-    return this._configService;
-  }
-
-  products(): ProductService {
-    if (!this._productService) {
-      this._productService = new ProductService(this.httpClient);
-    }
-    return this._productService;
-  }
-
-  posts(): PostService {
-    if (!this._postService) {
-      this._postService = new PostService(this.httpClient);
-    }
-    return this._postService;
-  }
-
-  prompts(): PromptService {
-    if (!this._promptService) {
-      this._promptService = new PromptService(this.httpClient);
-    }
-    return this._promptService;
-  }
-
-  provisioning(): ProvisioningService {
-    if (!this._provisioningService) {
-      this._provisioningService = new ProvisioningService(this.httpClient);
-    }
-    return this._provisioningService;
-  }
-
-  webhooks(): WebhookService {
-    if (!this._webhookService) {
-      this._webhookService = new WebhookService(this.httpClient);
-    }
-    return this._webhookService;
-  }
-
-  tenant(): TenantService {
-    if (!this._tenantService) {
-      this._tenantService = new TenantService(this.httpClient);
-    }
-    return this._tenantService;
-  }
-
-  threads(): ThreadService {
-    if (!this._threadService) {
-      this._threadService = new ThreadService(this.httpClient);
-    }
-    return this._threadService;
-  }
-
-  getConfig(): Configuration {
-    return this.configuration;
-  }
-
-  withSiteUrl(siteUrl: string): IntufindClient {
-    return new IntufindClient(this.configuration.withSiteUrl(siteUrl));
-  }
-
-  withApiKey(apiKey: string): IntufindClient {
-    return new IntufindClient(this.configuration.withApiKey(apiKey));
-  }
-
-  withDebug(debug = true): IntufindClient {
-    return new IntufindClient(this.configuration.withDebug(debug));
-  }
-
-  getVersionInfo(): {
-    sdk_version: string;
-    api_endpoint: string;
-    streaming_endpoint: string;
-    debug_mode: boolean;
-  } {
-    return {
-      sdk_version: '1.0.0',
-      api_endpoint: this.configuration.apiEndpoint,
-      streaming_endpoint: this.configuration.streamingEndpoint,
-      debug_mode: this.configuration.debug,
-    };
+  /**
+   * Return a new client scoped to a specific workspace.
+   * The original client is not modified.
+   */
+  withWorkspaceId(workspaceId: string): Intufind {
+    return new Intufind({ ...this.http.opts, workspaceId });
   }
 }

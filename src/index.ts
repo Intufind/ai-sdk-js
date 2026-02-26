@@ -1,65 +1,142 @@
-/**
- * Intufind AI SDK
- * Official JavaScript/Node.js SDK for Intufind AI Cloud Services
- */
+// Client
+export { Intufind } from './client';
 
-// Main client
-import { IntufindClient as Client } from './Client';
-
-export { IntufindClient } from './Client';
-export type { ConfigOptions } from './config/Configuration';
-// Configuration
-export { Configuration } from './config/Configuration';
+// Resource classes (for advanced usage / type narrowing)
+export { Analytics } from './resources/analytics';
+export { ApiKeys } from './resources/api-keys';
+export { Chat } from './resources/chat';
+export { Feedback } from './resources/feedback';
+export { Posts } from './resources/posts';
+export { Products } from './resources/products';
+export { Prompts } from './resources/prompts';
+export { Recommendations } from './resources/recommendations';
+export { Taxonomies } from './resources/taxonomies';
+export { Threads } from './resources/threads';
+export { Webhooks } from './resources/webhooks';
 
 // Errors
 export {
-  AuthenticationError,
   IntufindError,
-  NetworkError,
-  NotFoundError,
-  RateLimitError,
+  AuthenticationError,
   ValidationError,
-} from './errors';
-export type { RequestOptions } from './http/HttpClient';
-// HTTP client (for advanced usage)
-export { HttpClient } from './http/HttpClient';
-// Services (exported for advanced usage)
-export { BaseService } from './services/BaseService';
-export { ChatService } from './services/ChatService';
-export { ConfigService } from './services/ConfigService';
-export { PostService } from './services/PostService';
-export { ProductService } from './services/ProductService';
-export { PromptService } from './services/PromptService';
-export {
-  type ApiKeyInfo,
-  type ApiKeyType,
-  type CreateKeyResult,
-  type DeactivateOptions,
-  type DeactivateResult,
-  type GenerateKeyOptions,
-  type ManualProvisionOptions,
-  ProviderType,
-  ProvisioningService,
-  type ProvisionResult,
-} from './services/ProvisioningService';
-export { TenantService } from './services/TenantService';
-export { ThreadService } from './services/ThreadService';
-export { WebhookService } from './services/WebhookService';
-// Types (re-export all types)
-export type * from './types';
+  RateLimitError,
+  TrialExpiredError,
+  NotFoundError,
+  NetworkError,
+} from './http/errors';
 
-// Streaming type guards
+// Streaming utilities
+export { parseSSEStream } from './http/streaming';
+
+// Type guards
 export {
-  isComplete,
-  isError,
-  isHandoffOffer,
-  isHandoffSuccess,
+  isTextDelta,
+  isProduct,
   isPost,
   isPostDelta,
-  isProduct,
   isPrompts,
-  isTextDelta,
+  isDomainOffer,
+  isDomainOfferSuccess,
+  isComplete,
+  isError,
+} from './types/chat';
+
+// All types
+export type {
+  // Common
+  ClientOptions,
+  ApiResponse,
+  TierLimits,
+  UsageInfo,
+  RequestOptions,
+  UpsertResponse,
+  DeleteResponse,
+  BulkUpsertResponse,
+  BulkDeleteResponse,
+  DeleteByQueryResponse,
+  IdsResponse,
+  PaginatedResponse,
+  SearchContext,
+
+  // Products
+  ProductDto,
+  ProductSearchRequest,
+  ProductSearchResponse,
+  ProductSearchFacets,
+  FacetBucket,
+  RangeFacetBucket,
+
+  // Posts
+  PostDto,
+  PostSearchRequest,
+  PostSearchResponse,
+
+  // Chat
+  ChatRequest,
+  ChatResponse,
+  ChatMessage,
+  OfferResponse,
+  StreamChunkType,
+  StreamChunk,
+  ActionVariant,
+  OfferedAction,
+  OfferUIComponent,
+  ActionGroupUI,
+  FormFieldType,
+  FormField,
+  FormUI,
+  OfferUI,
+  DomainOfferData,
+  DomainOfferSuccessData,
+  PostDeltaData,
+  ErrorData,
+
+  // Prompts
+  PromptDto,
+  PromptSearchRequest,
+  PromptListRequest,
+
+  // Taxonomies
+  TaxonomyDto,
+
+  // Recommendations
+  RecommendationRequest,
+  RecommendationResponse,
+
+  // Webhooks
+  WebhookDto,
+  CreateWebhookRequest,
+  UpdateWebhookRequest,
+  WebhookListRequest,
+  WebhookTestResponse,
+
+  // Threads
+  ThreadSearchRequest,
+  ThreadSearchResponse,
+  ThreadSummary,
+  ThreadMessage,
+  ThreadMessagesResponse,
+
+  // Feedback
+  FeedbackSubmitRequest,
+  FeedbackDto,
+  FeedbackSearchRequest,
+  FeedbackSearchResponse,
+  FeedbackAnalyticsResponse,
+
+  // Analytics
+  SearchAnalyticsQuery,
+  SearchAnalyticsResponse,
+  ChatAnalyticsQuery,
+  ChatAnalyticsResponse,
+  FeedbackAnalyticsQuery,
+
+  // API Keys
+  ApiKeyDto,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
+  RotateApiKeyResponse,
 } from './types';
 
-// Default export
-export default Client;
+// Utility
+export { workspaceIdFromUrl } from './util';
