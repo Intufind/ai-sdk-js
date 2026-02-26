@@ -6,7 +6,7 @@ export interface FeedbackSubmitRequest {
   metadata?: Record<string, unknown>;
 }
 
-export interface FeedbackDto {
+export interface FeedbackEntry {
   id: string;
   threadId: string;
   rating: 'positive' | 'negative';
@@ -28,7 +28,7 @@ export interface FeedbackSearchRequest {
 }
 
 export interface FeedbackSearchResponse {
-  results: FeedbackDto[];
+  results: FeedbackEntry[];
   total: number;
   limit: number;
   offset: number;

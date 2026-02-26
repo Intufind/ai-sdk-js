@@ -7,7 +7,7 @@ import type {
   IdsResponse,
   UpsertResponse,
 } from '../types/common';
-import type { ProductDto, ProductSearchRequest, ProductSearchResponse } from '../types/products';
+import type { Product, ProductSearchRequest, ProductSearchResponse } from '../types/products';
 import { Resource } from './base';
 
 export class Products extends Resource {
@@ -24,11 +24,11 @@ export class Products extends Resource {
     return this.http.post('/products/search', { ...request, includeFacets: true, facetFields, facetSize }, opts);
   }
 
-  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<ProductDto>> {
+  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Product>> {
     return this.http.get(`/products/${encodeURIComponent(id)}`, opts);
   }
 
-  async upsert(product: ProductDto, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
+  async upsert(product: Product, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
     return this.http.post('/products', product, opts);
   }
 
@@ -36,7 +36,7 @@ export class Products extends Resource {
     return this.http.del(`/products/${encodeURIComponent(id)}`, opts);
   }
 
-  async bulkUpsert(products: ProductDto[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
+  async bulkUpsert(products: Product[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
     return this.http.post('/products/bulk', { entities: products }, opts);
   }
 

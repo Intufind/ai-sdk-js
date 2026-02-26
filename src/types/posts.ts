@@ -1,6 +1,6 @@
 import type { SearchContext } from './common';
 
-export interface PostDto {
+export interface Post {
   id: string;
   title: string;
   content?: string;
@@ -37,7 +37,7 @@ export interface PostSearchRequest {
 }
 
 export interface PostSearchResponse {
-  results: PostDto[];
+  results: Post[];
   total: number;
   query: {
     text: string;

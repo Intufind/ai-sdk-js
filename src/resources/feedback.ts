@@ -1,7 +1,7 @@
 import type { ApiResponse, DeleteResponse } from '../types/common';
 import type {
   FeedbackSubmitRequest,
-  FeedbackDto,
+  FeedbackEntry,
   FeedbackSearchResponse,
   FeedbackAnalyticsResponse,
 } from '../types/feedback';
@@ -9,7 +9,7 @@ import { Resource } from './base';
 
 export class Feedback extends Resource {
   /** Submit feedback (client-safe with publishable key). */
-  async submit(request: FeedbackSubmitRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<FeedbackDto>> {
+  async submit(request: FeedbackSubmitRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<FeedbackEntry>> {
     return this.http.post('/feedback', request, opts);
   }
 
@@ -25,7 +25,7 @@ export class Feedback extends Resource {
   }
 
   /** Get all feedback for a specific thread (requires secret key). */
-  async forThread(threadId: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<FeedbackDto[]>> {
+  async forThread(threadId: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<FeedbackEntry[]>> {
     return this.http.get(`/feedback/thread/${encodeURIComponent(threadId)}`, opts);
   }
 

@@ -1,6 +1,6 @@
 import type { ApiResponse } from '../types/common';
 import type {
-  ApiKeyDto,
+  ApiKey,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   RotateApiKeyResponse,
@@ -8,7 +8,7 @@ import type {
 import { Resource } from './base';
 
 export class ApiKeys extends Resource {
-  async list(opts?: { signal?: AbortSignal }): Promise<ApiResponse<ApiKeyDto[]>> {
+  async list(opts?: { signal?: AbortSignal }): Promise<ApiResponse<ApiKey[]>> {
     return this.http.get('/provision/keys', opts);
   }
 

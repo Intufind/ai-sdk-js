@@ -59,7 +59,7 @@ export type {
   SearchContext,
 
   // Products
-  ProductDto,
+  Product,
   ProductSearchRequest,
   ProductSearchResponse,
   ProductSearchFacets,
@@ -67,7 +67,7 @@ export type {
   RangeFacetBucket,
 
   // Posts
-  PostDto,
+  Post,
   PostSearchRequest,
   PostSearchResponse,
 
@@ -92,19 +92,19 @@ export type {
   ErrorData,
 
   // Prompts
-  PromptDto,
+  Prompt,
   PromptSearchRequest,
   PromptListRequest,
 
   // Taxonomies
-  TaxonomyDto,
+  Taxonomy,
 
   // Recommendations
   RecommendationRequest,
   RecommendationResponse,
 
   // Webhooks
-  WebhookDto,
+  Webhook,
   CreateWebhookRequest,
   UpdateWebhookRequest,
   WebhookListRequest,
@@ -119,7 +119,7 @@ export type {
 
   // Feedback
   FeedbackSubmitRequest,
-  FeedbackDto,
+  FeedbackEntry,
   FeedbackSearchRequest,
   FeedbackSearchResponse,
   FeedbackAnalyticsResponse,
@@ -132,7 +132,7 @@ export type {
   FeedbackAnalyticsQuery,
 
   // API Keys
-  ApiKeyDto,
+  ApiKey,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   RotateApiKeyResponse,

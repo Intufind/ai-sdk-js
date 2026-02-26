@@ -1,26 +1,26 @@
 import type { ApiResponse, PaginatedResponse, UpsertResponse, DeleteResponse } from '../types/common';
-import type { PromptDto, PromptSearchRequest, PromptListRequest } from '../types/prompts';
+import type { Prompt, PromptSearchRequest, PromptListRequest } from '../types/prompts';
 import { Resource } from './base';
 
 export class Prompts extends Resource {
-  async list(params?: PromptListRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<PromptDto>>> {
+  async list(params?: PromptListRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<Prompt>>> {
     const qs = this.buildQueryString(params ?? {});
     return this.http.get(`/prompts${qs}`, opts);
   }
 
-  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PromptDto>> {
+  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Prompt>> {
     return this.http.get(`/prompts/${encodeURIComponent(id)}`, opts);
   }
 
-  async search(request: PromptSearchRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<PromptDto>>> {
+  async search(request: PromptSearchRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<Prompt>>> {
     return this.http.post('/prompts/search', request, opts);
   }
 
-  async upsert(prompt: PromptDto, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
+  async upsert(prompt: Prompt, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
     return this.http.post('/prompts', prompt, opts);
   }
 
-  async bulkUpsert(prompts: PromptDto[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<{ successful_ids: string[]; failed_items: Array<{ id: string; error: string }> }>> {
+  async bulkUpsert(prompts: Prompt[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<{ successful_ids: string[]; failed_items: Array<{ id: string; error: string }> }>> {
     return this.http.post('/prompts/bulk', { entities: prompts }, opts);
   }
 

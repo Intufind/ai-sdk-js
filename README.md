@@ -152,8 +152,8 @@ import { isTextDelta, isProduct, isPost, isDomainOffer, isComplete } from '@intu
 
 for await (const chunk of client.chat.stream({ message: '...', threadId: '...' })) {
   if (isTextDelta(chunk)) console.log(chunk.data);       // string
-  if (isProduct(chunk))   console.log(chunk.data.name);   // ProductDto
-  if (isPost(chunk))      console.log(chunk.data.title);  // PostDto
+  if (isProduct(chunk))   console.log(chunk.data.name);   // Product
+  if (isPost(chunk))      console.log(chunk.data.title);  // Post
 }
 ```
 
@@ -316,12 +316,12 @@ All request/response types are exported:
 
 ```typescript
 import type {
-  ProductDto,
+  Product,
   ProductSearchRequest,
   ProductSearchResponse,
   ChatRequest,
   StreamChunk,
-  WebhookDto,
+  Webhook,
 } from '@intufind/ai-sdk';
 ```
 

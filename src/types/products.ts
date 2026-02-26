@@ -1,6 +1,6 @@
 import type { SearchContext } from './common';
 
-export interface ProductDto {
+export interface Product {
   id: string;
   name: string;
   content?: string;
@@ -67,7 +67,7 @@ export interface RangeFacetBucket {
 export type ProductSearchFacets = Record<string, FacetBucket[] | RangeFacetBucket[]>;
 
 export interface ProductSearchResponse {
-  results: ProductDto[];
+  results: Product[];
   total: number;
   facets?: ProductSearchFacets;
   query: {

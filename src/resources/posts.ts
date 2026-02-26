@@ -7,7 +7,7 @@ import type {
   IdsResponse,
   UpsertResponse,
 } from '../types/common';
-import type { PostDto, PostSearchRequest, PostSearchResponse } from '../types/posts';
+import type { Post, PostSearchRequest, PostSearchResponse } from '../types/posts';
 import { Resource } from './base';
 
 export class Posts extends Resource {
@@ -15,11 +15,11 @@ export class Posts extends Resource {
     return this.http.post('/posts/search', request, opts);
   }
 
-  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PostDto>> {
+  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Post>> {
     return this.http.get(`/posts/${encodeURIComponent(id)}`, opts);
   }
 
-  async upsert(post: PostDto, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
+  async upsert(post: Post, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
     return this.http.post('/posts', post, opts);
   }
 
@@ -27,7 +27,7 @@ export class Posts extends Resource {
     return this.http.del(`/posts/${encodeURIComponent(id)}`, opts);
   }
 
-  async bulkUpsert(posts: PostDto[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
+  async bulkUpsert(posts: Post[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
     return this.http.post('/posts/bulk', { entities: posts }, opts);
   }
 

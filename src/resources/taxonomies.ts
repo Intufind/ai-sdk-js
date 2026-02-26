@@ -7,15 +7,15 @@ import type {
   IdsResponse,
   UpsertResponse,
 } from '../types/common';
-import type { TaxonomyDto } from '../types/taxonomies';
+import type { Taxonomy } from '../types/taxonomies';
 import { Resource } from './base';
 
 export class Taxonomies extends Resource {
-  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<TaxonomyDto>> {
+  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Taxonomy>> {
     return this.http.get(`/taxonomies/${encodeURIComponent(id)}`, opts);
   }
 
-  async upsert(taxonomy: TaxonomyDto, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
+  async upsert(taxonomy: Taxonomy, opts?: { signal?: AbortSignal }): Promise<ApiResponse<UpsertResponse>> {
     return this.http.post('/taxonomies', taxonomy, opts);
   }
 
@@ -23,7 +23,7 @@ export class Taxonomies extends Resource {
     return this.http.del(`/taxonomies/${encodeURIComponent(id)}`, opts);
   }
 
-  async bulkUpsert(taxonomies: TaxonomyDto[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
+  async bulkUpsert(taxonomies: Taxonomy[], opts?: { signal?: AbortSignal }): Promise<ApiResponse<BulkUpsertResponse>> {
     return this.http.post('/taxonomies/bulk', { entities: taxonomies }, opts);
   }
 

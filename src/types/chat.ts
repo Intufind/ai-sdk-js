@@ -1,6 +1,6 @@
-import type { PostDto } from './posts';
-import type { ProductDto } from './products';
-import type { PromptDto } from './prompts';
+import type { Post } from './posts';
+import type { Product } from './products';
+import type { Prompt } from './prompts';
 
 export interface ChatRequest {
   message: string;
@@ -23,9 +23,9 @@ export interface OfferResponse {
 
 export interface ChatMessage {
   intro?: string | null;
-  products?: ProductDto[] | null;
-  posts?: PostDto[] | null;
-  prompts?: PromptDto[] | null;
+  products?: Product[] | null;
+  posts?: Post[] | null;
+  prompts?: Prompt[] | null;
   orders?: Array<{
     id: number;
     status: string;
@@ -147,11 +147,11 @@ export function isTextDelta(chunk: StreamChunk): chunk is StreamChunk<string> {
   return chunk.type === 'text_delta';
 }
 
-export function isProduct(chunk: StreamChunk): chunk is StreamChunk<ProductDto> {
+export function isProduct(chunk: StreamChunk): chunk is StreamChunk<Product> {
   return chunk.type === 'product';
 }
 
-export function isPost(chunk: StreamChunk): chunk is StreamChunk<PostDto> {
+export function isPost(chunk: StreamChunk): chunk is StreamChunk<Post> {
   return chunk.type === 'post';
 }
 
@@ -159,7 +159,7 @@ export function isPostDelta(chunk: StreamChunk): chunk is StreamChunk<PostDeltaD
   return chunk.type === 'post_delta';
 }
 
-export function isPrompts(chunk: StreamChunk): chunk is StreamChunk<PromptDto[]> {
+export function isPrompts(chunk: StreamChunk): chunk is StreamChunk<Prompt[]> {
   return chunk.type === 'prompts';
 }
 

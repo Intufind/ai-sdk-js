@@ -2,7 +2,7 @@ import type { ApiResponse, DeleteResponse, PaginatedResponse } from '../types/co
 import type {
   CreateWebhookRequest,
   UpdateWebhookRequest,
-  WebhookDto,
+  Webhook,
   WebhookListRequest,
   WebhookTestResponse,
 } from '../types/webhooks';
@@ -13,16 +13,16 @@ export class Webhooks extends Resource {
     return this.http.post('/webhooks', webhook, opts);
   }
 
-  async list(params?: WebhookListRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<WebhookDto>>> {
+  async list(params?: WebhookListRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<PaginatedResponse<Webhook>>> {
     const qs = this.buildQueryString(params ?? {});
     return this.http.get(`/webhooks${qs}`, opts);
   }
 
-  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<WebhookDto>> {
+  async get(id: string, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Webhook>> {
     return this.http.get(`/webhooks/${encodeURIComponent(id)}`, opts);
   }
 
-  async update(id: string, webhook: UpdateWebhookRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<WebhookDto>> {
+  async update(id: string, webhook: UpdateWebhookRequest, opts?: { signal?: AbortSignal }): Promise<ApiResponse<Webhook>> {
     return this.http.put(`/webhooks/${encodeURIComponent(id)}`, webhook, opts);
   }
 

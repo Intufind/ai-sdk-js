@@ -1,4 +1,4 @@
-import type { ProductDto } from './products';
+import type { Product } from './products';
 
 export interface RecommendationRequest {
   productId: string;
@@ -16,7 +16,7 @@ export interface RecommendationRequest {
 }
 
 export interface RecommendationResponse {
-  recommendations: ProductDto[];
+  recommendations: Product[];
   usedStrategies: string[];
   fallbackApplied: boolean;
   weights: Record<string, number>;

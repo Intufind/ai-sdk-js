@@ -1,4 +1,4 @@
-export interface PromptDto {
+export interface Prompt {
   id?: string;
   prompt: string;
   title?: string;

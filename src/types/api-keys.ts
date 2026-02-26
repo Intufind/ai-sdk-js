@@ -1,4 +1,4 @@
-export interface ApiKeyDto {
+export interface ApiKey {
   id: string;
   name?: string;
   prefix: string;

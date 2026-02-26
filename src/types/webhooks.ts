@@ -1,4 +1,4 @@
-export interface WebhookDto {
+export interface Webhook {
   id: string;
   name: string;
   url: string;
